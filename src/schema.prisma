@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./auth-client"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model QueryToken {
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  token    String  @unique
+  user     User?   @relation(fields: [userId], references: [id])
+  userId   String? @db.ObjectId
+  device   Device? @relation(fields: [deviceId], references: [id])
+  deviceId String? @db.ObjectId
+  subApp   String?
+}
+
+model AccesScope {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  include     Json?
+  accessToken AccessToken[]
+}
+
+model AccessToken {
+  id               String         @id @default(auto()) @map("_id") @db.ObjectId
+  token            String         @unique
+  name             String
+  userId           String?        @db.ObjectId
+  device           Device?        @relation(fields: [deviceId], references: [id])
+  deviceId         String?        @db.ObjectId
+  referrer         String?
+  owner            String?
+  ownerDescription String?
+  expiryDate       DateTime
+  refreshToken     RefreshToken[]
+  user             User?          @relation(fields: [userId], references: [id])
+  scope            AccesScope?    @relation(fields: [accesScopeId], references: [id])
+  accesScopeId     String?        @db.ObjectId
+}
+
+model RefreshToken {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  token         String      @unique
+  accessTokenId String      @db.ObjectId
+  accessToken   AccessToken @relation(fields: [accessTokenId], references: [id])
+  user          User?       @relation(fields: [userId], references: [id])
+  userId        String?     @db.ObjectId
+  device        Device?     @relation(fields: [deviceId], references: [id])
+  deviceId      String?     @db.ObjectId
+}
+
+model User {
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
+  userName     String         @unique
+  firstName    String?
+  lastName     String?
+  password     String         @unique
+  refreshToken RefreshToken[]
+  accessToken  AccessToken[]
+  online       Boolean?
+  lastSeen     DateTime?
+  deviceId     String?        @db.ObjectId
+  queryToken   QueryToken[]
+}
+
+model Device {
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
+  deviceId     String         @unique
+  userAgent    String?
+  ip           String?
+  referer      String?
+  queryToken   QueryToken[]
+  accessToken  AccessToken[]
+  refreshToken RefreshToken[]
+}

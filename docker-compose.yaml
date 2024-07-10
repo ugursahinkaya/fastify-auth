@@ -1,0 +1,53 @@
+version: "3.8"
+
+services:
+  mongo1:
+    image: mongo:latest
+    container_name: mongo1
+    hostname: test1.mongo.db
+    networks:
+      - mongo-network
+    environment:
+      - MONGO_INITDB_REPLICA_SET=replicaset
+    command: ["--replSet", "replicaset", "--port", "27018"]
+    volumes:
+      - mongo1-data:/data/db
+    ports:
+      - "27018:27018"
+
+  mongo2:
+    image: mongo:latest
+    container_name: mongo2
+    hostname: test2.mongo.db
+    networks:
+      - mongo-network
+    environment:
+      - MONGO_INITDB_REPLICA_SET=replicaset
+    command: ["--replSet", "replicaset", "--port", "27019"]
+    volumes:
+      - mongo2-data:/data/db
+    ports:
+      - "27019:27019"
+
+  mongo3:
+    image: mongo:latest
+    container_name: mongo3
+    hostname: test3.mongo.db
+    networks:
+      - mongo-network
+    environment:
+      - MONGO_INITDB_REPLICA_SET=replicaset
+    command: ["--replSet", "replicaset", "--port", "27020"]
+    volumes:
+      - mongo3-data:/data/db
+    ports:
+      - "27020:27020"
+
+networks:
+  mongo-network:
+    driver: bridge
+
+volumes:
+  mongo1-data:
+  mongo2-data:
+  mongo3-data:
